@@ -17,16 +17,29 @@ class imageProcessing:
         kernel = np.ones((5,5), np.uint8)
         for i in range(len(self.files)):
             self.images_g.append(cv2.cvtColor(self.images[i], cv2.COLOR_BGR2GRAY))
-            v = np.median(self.images_g[i])
-            lower = int(max(0, (1.0 - 0.33) * v))
-            upper = int(min(255, (1.0 + 0.33) * v))
-                        
-            img_g = cv2.GaussianBlur(self.images_g[i], (3, 3), 0)
-            #img_g = cv2.bilateralFilter(self.images[i], 11, 17, 17)
-            edges = cv2.Canny(img_g, lower, upper)
-            final_img = cv2.dilate(edges, kernel, iterations = 1)  #cv2.morphologyEx(edges, cv2.MORPH_GRADIENT, kernel)
             
-            self.images_g[i] = final_img
+            opening = cv2.morphologyEx(self.images_g[i], cv2.MORPH_OPEN, kernel)
+            closing = cv2.morphologyEx(opening, cv2.MORPH_OPEN, kernel)
+            opening = closing
+            
+            bilater = cv2.bilateralFilter(opening, -1, (1.0 - 0.3) * np.std(self.images[i]), 10)#cv2.bilateralFilter(opening, 95, 75, 75)
+            img_g = cv2.GaussianBlur(bilater, (3, 3), 0)
+            
+            v = np.median(img_g)
+            lower = int(max(0, (1.0 - 0.3) * v))
+            upper = int(min(255, (1.0 + 0.3) * v))
+                        
+            edges = cv2.Canny(img_g, lower, upper)
+            
+            for k in range(10):
+                #final_img = cv2.dilate(edges, kernel, iterations = 1)
+                final_img = cv2.erode(cv2.dilate(edges, kernel, iterations = 1), kernel, iterations = 1)
+            
+            imgMod = cv2.morphologyEx(final_img, cv2.MORPH_CLOSE, np.ones((5,5), np.uint8))
+            x, contours, z = cv2.findContours(imgMod, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+            resul = cv2.drawContours(self.images[i], contours, -1, (244, 255, 0), cv2.FILLED)
+            
+            self.images_g[i] = resul
 
     def generate_images(self):
         #plt.subplot(2,2,1), plt.imshow(img, cmap = 'gray'), plt.title('Orginal')
@@ -37,6 +50,12 @@ class imageProcessing:
         rows = num // cols
         if(num % cols != 0):
             rows += 1
+        
+        cv2.imshow("Edges",self.images_g[0])
+        cv2.waitKey(0)
+        cv2.imshow("Edges",self.images_g[1])
+        cv2.waitKey(0)
+        return
         
         fig, plots = plt.subplots(rows, cols, facecolor='black')
         for r in range(rows):
