@@ -2,6 +2,7 @@
 
 import cv2
 import numpy as np
+import os
 import random as rand
 from matplotlib import pyplot as plt
 
@@ -63,15 +64,15 @@ class imageProcessing:
             rows += 1
         
         
-        for ims in range(num):
-            cv2.imshow("Edges",self.images_g[ims])
-            cv2.waitKey(0)
+        #for ims in range(num):
+        #    cv2.imshow("Edges",self.images_g[ims])
+        #    cv2.waitKey(0)
         
-        for ims in range(num):
-            cv2.imshow("Edges",self.images_m[ims])
-            cv2.waitKey(0)
+        #for ims in range(num):
+        #    cv2.imshow("Edges",self.images_m[ims])
+        #    cv2.waitKey(0)
         
-        fig, plots = plt.subplots(rows, cols, facecolor='black')
+        fig, plots = plt.subplots(rows, cols, figsize=(30, 42))
         for r in range(rows):
             for c in range(cols):
                 if(r * cols + c < num):
@@ -81,18 +82,36 @@ class imageProcessing:
         plt.tight_layout()
         fig.savefig('ex1.pdf', facecolor='black')
         plt.close()
+        
+        fig, plots = plt.subplots(rows, cols, figsize=(90, 126))
+        for r in range(rows):
+            for c in range(cols):
+                if(r * cols + c < num):
+                    plots[r,c].imshow(self.images_g[r * cols + c])
+                    plots[r,c].tick_params(axis='both', which='both', bottom='off', top='off', left='off', right='off', labelleft='off', labelbottom='off')
+        
+        plt.tight_layout()
+        fig.savefig('ex2.pdf')
+        plt.close()
 
 if __name__ == "__main__":
 	pto = input("Name of the data folder: ")
 	print("PROCESSING, Please wait.")
 	
 	objects = ["samolot11.jpg", "samolot10.jpg", 
-				"samolot02.jpg","samolot17.jpg", 
+				"samolot02.jpg","samolot17.jpg",
+				"samolot05.jpg","samolot15.jpg",
+				"samolot13.jpg","samolot16.jpg", 
 				"samolot07.jpg", "samolot08.jpg"]
 
 	pto = pto + str('/')
 	objects = [pto + obj for obj in objects]
 	
+	#objects = []
+	#for root, dirs, files in os.walk("data"):
+	#    for filename in files:
+	#        objects.append(filename)
+
 	planes = imageProcessing(objects)
 	planes.processing_images()
 	planes.generate_images()
