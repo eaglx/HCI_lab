@@ -22,22 +22,22 @@ class imageProcessing:
             closing = cv2.morphologyEx(opening, cv2.MORPH_OPEN, kernel)
             opening = closing
             
-            bilater = cv2.bilateralFilter(opening, -1, (1.0 - 0.3) * np.std(self.images[i]), 10)#cv2.bilateralFilter(opening, 95, 75, 75)
+            bilater = cv2.bilateralFilter(opening, -1, (1.0 - 0.3) * np.std(self.images_g[i]), 10)#cv2.bilateralFilter(opening, 95, 75, 75)
             img_g = cv2.GaussianBlur(bilater, (3, 3), 0)
             
             v = np.median(img_g)
             lower = int(max(0, (1.0 - 0.3) * v))
-            upper = int(min(255, (1.0 + 0.3) * v))
+            upper = int(min(255, (1.0 + 0.2) * v))
                         
             edges = cv2.Canny(img_g, lower, upper)
             
-            for k in range(10):
+            #for k in range(10):
                 #final_img = cv2.dilate(edges, kernel, iterations = 1)
-                final_img = cv2.erode(cv2.dilate(edges, kernel, iterations = 1), kernel, iterations = 1)
+            final_img = cv2.erode(cv2.dilate(edges, kernel, iterations = 1), kernel, iterations = 1)    
             
             imgMod = cv2.morphologyEx(final_img, cv2.MORPH_CLOSE, np.ones((5,5), np.uint8))
             x, contours, z = cv2.findContours(imgMod, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-            resul = cv2.drawContours(self.images[i], contours, -1, (244, 255, 0), cv2.FILLED)
+            resul = cv2.drawContours(self.images[i], contours, -1, (244 - i * 100, 255, 0), cv2.FILLED)
             
             self.images_g[i] = resul
 
