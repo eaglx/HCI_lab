@@ -19,8 +19,8 @@ class imageProcessing:
             self.images_g.append(cv2.cvtColor(self.images[i], cv2.COLOR_BGR2GRAY))
             
             opening = cv2.morphologyEx(self.images_g[i], cv2.MORPH_OPEN, kernel)
-            closing = cv2.morphologyEx(opening, cv2.MORPH_OPEN, kernel)
-            opening = closing
+            #closing = cv2.morphologyEx(opening, cv2.MORPH_CLOSE, kernel)
+            #opening = closing
             
             bilater = cv2.bilateralFilter(opening, -1, (1.0 - 0.3) * np.std(self.images_g[i]), 10)
             #bilater = cv2.bilateralFilter(opening, 9, 75, 75)
@@ -32,13 +32,11 @@ class imageProcessing:
                         
             edges = cv2.Canny(img_g, lower, upper)
             
-            #for k in range(10):
-                #final_img = cv2.dilate(edges, kernel, iterations = 1)
             final_img = cv2.erode(cv2.dilate(edges, kernel, iterations = 1), kernel, iterations = 1)    
             
-            imgMod = cv2.morphologyEx(final_img, cv2.MORPH_CLOSE, np.ones((5,5), np.uint8))
+            imgMod = cv2.morphologyEx(final_img, cv2.MORPH_CLOSE, kernel)
             x, contours, z = cv2.findContours(imgMod, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-            resul = cv2.drawContours(self.images[i], contours, -1, (244 - i * 60, 255, 0), cv2.FILLED)
+            resul = cv2.drawContours(self.images[i], contours, -1, (244 - i * 60, 255 - i * 20, i * 60), cv2.FILLED)
             
             self.images_g[i] = resul
 
@@ -52,10 +50,10 @@ class imageProcessing:
         if(num % cols != 0):
             rows += 1
         
-        cv2.imshow("Edges",self.images_g[0])
-        cv2.waitKey(0)
-        cv2.imshow("Edges",self.images_g[1])
-        cv2.waitKey(0)
+        
+        for ims in range(num):
+            cv2.imshow("Edges",self.images_g[ims])
+            cv2.waitKey(0)
         return
         
         fig, plots = plt.subplots(rows, cols, facecolor='black')
