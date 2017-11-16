@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 def gen_random_color():
     color = []
     for i in range(3):
-        color.append(rand.randint(0, 255))
+        color.append(rand.randint(50, 225))
     return color
 
 class imageProcessing:
@@ -40,7 +40,7 @@ class imageProcessing:
                         
             edges = cv2.Canny(img_g, lower, upper)
             
-            final_img = cv2.erode(cv2.dilate(edges, kernel, iterations = 2), kernel, iterations = 1)    
+            final_img = cv2.erode(cv2.dilate(edges, kernel, iterations = 1), kernel, iterations = 1)    
             
             self.images_m.append(final_img)
             
@@ -65,6 +65,10 @@ class imageProcessing:
         
         for ims in range(num):
             cv2.imshow("Edges",self.images_g[ims])
+            cv2.waitKey(0)
+        
+        for ims in range(num):
+            cv2.imshow("Edges",self.images_m[ims])
             cv2.waitKey(0)
         
         fig, plots = plt.subplots(rows, cols, facecolor='black')
