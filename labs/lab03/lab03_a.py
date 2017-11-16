@@ -51,7 +51,7 @@ class imageProcessing:
             for lp in range(len(contours)):
                 moments = cv2.moments(contours[lp])
                 self.images_g[i] = cv2.drawContours(self.images[i], contours, lp, gen_random_color(), thickness=2)
-                self.images_g[i] = cv2.circle(self.images_g[i], (int(moments['m10'] / moments['m00']), int(moments['m01'] / moments['m00'])), 5, (255, 255, 255), -1)
+                self.images_g[i] = cv2.circle(self.images_g[i], (int(moments['m10'] / max(moments['m00'], 0.001)), int(moments['m01'] /max( moments['m00'], 0.001))), 5, (255, 255, 255), -1)
 
     def generate_images(self):
         #plt.subplot(2,2,1), plt.imshow(img, cmap = 'gray'), plt.title('Orginal')
@@ -101,6 +101,7 @@ if __name__ == "__main__":
 	objects = ["samolot11.jpg", "samolot10.jpg", 
 				"samolot02.jpg","samolot17.jpg",
 				"samolot05.jpg","samolot15.jpg",
+				"samolot04.jpg","samolot03.jpg",
 				"samolot13.jpg","samolot16.jpg", 
 				"samolot07.jpg", "samolot08.jpg"]
 
