@@ -2,13 +2,21 @@
 
 import cv2
 import numpy as np
+import random as rand
 from matplotlib import pyplot as plt
+
+def gen_random_color():
+    color = []
+    for i in range(3):
+        color.append(rand.randint(0, 255))
+    return color
 
 class imageProcessing:
     def __init__(self, fileList):
         self.files = fileList
         self.images = []
         self.images_g = []
+        self.images_m = []
         
         for img in self.files:
            self.images.append(cv2.imread(img))
@@ -32,13 +40,17 @@ class imageProcessing:
                         
             edges = cv2.Canny(img_g, lower, upper)
             
-            final_img = cv2.erode(cv2.dilate(edges, kernel, iterations = 1), kernel, iterations = 1)    
+            final_img = cv2.erode(cv2.dilate(edges, kernel, iterations = 2), kernel, iterations = 1)    
+            
+            self.images_m.append(final_img)
             
             imgMod = cv2.morphologyEx(final_img, cv2.MORPH_CLOSE, kernel)
-            x, contours, z = cv2.findContours(imgMod, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-            resul = cv2.drawContours(self.images[i], contours, -1, (244 - i * 60, 255 - i * 20, i * 60), cv2.FILLED)
+            x, contours, z = cv2.findContours(imgMod, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             
-            self.images_g[i] = resul
+            for lp in range(len(contours)):
+                moments = cv2.moments(contours[lp])
+                self.images_g[i] = cv2.drawContours(self.images[i], contours, lp, gen_random_color(), thickness=2)
+                self.images_g[i] = cv2.circle(self.images_g[i], (int(moments['m10'] / moments['m00']), int(moments['m01'] / moments['m00'])), 5, (255, 255, 255), -1)
 
     def generate_images(self):
         #plt.subplot(2,2,1), plt.imshow(img, cmap = 'gray'), plt.title('Orginal')
@@ -54,13 +66,12 @@ class imageProcessing:
         for ims in range(num):
             cv2.imshow("Edges",self.images_g[ims])
             cv2.waitKey(0)
-        return
         
         fig, plots = plt.subplots(rows, cols, facecolor='black')
         for r in range(rows):
             for c in range(cols):
                 if(r * cols + c < num):
-                    plots[r,c].imshow(self.images_g[r * cols + c], cmap = 'gray')
+                    plots[r,c].imshow(self.images_m[r * cols + c], cmap = 'gray')
                     plots[r,c].tick_params(axis='both', which='both', bottom='off', top='off', left='off', right='off', labelleft='off', labelbottom='off')
         
         plt.tight_layout()
